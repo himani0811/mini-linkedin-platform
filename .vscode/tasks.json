@@ -1,0 +1,50 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Backend Server",
+			"type": "shell",
+			"command": "C:/Users/BISA312/Downloads/Himani_project/.venv/Scripts/python.exe",
+			"args": [
+				"backend/app.py"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [],
+			"presentation": {
+				"group": "servers",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "Start Frontend Server",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"start"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/frontend"
+			},
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [],
+			"presentation": {
+				"group": "servers",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "Start Full Application",
+			"dependsOrder": "parallel",
+			"dependsOn": [
+				"Start Backend Server",
+				"Start Frontend Server"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

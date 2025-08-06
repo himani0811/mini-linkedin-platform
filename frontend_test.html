@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Frontend API Testing</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Backend Connection</h3>
+        <button onclick="testBackend()">Test Backend</button>
+        <div id="backend-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test User Login</h3>
+        <button onclick="testLogin()">Login as John</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test Profile Fetch</h3>
+        <button onclick="testProfile()">Get Profile</button>
+        <div id="profile-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test User Data Fetch</h3>
+        <button onclick="testUserData()">Get User Data (ID: 1)</button>
+        <div id="user-result"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testBackend() {
+            const resultDiv = document.getElementById('backend-result');
+            try {
+                const response = await fetch('http://localhost:5000/');
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success"><strong>✅ Backend Connected:</strong><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><strong>❌ Backend Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'john@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                authToken = data.token;
+                resultDiv.innerHTML = `<div class="success"><strong>✅ Login Success:</strong><pre>${JSON.stringify(data.user, null, 2)}</pre><p><strong>Token:</strong> ${data.token.substring(0, 50)}...</p></div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><strong>❌ Login Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function testProfile() {
+            const resultDiv = document.getElementById('profile-result');
+            if (!authToken) {
+                resultDiv.innerHTML = `<div class="error"><strong>❌ No Auth Token:</strong> Please login first</div>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success"><strong>✅ Profile Fetch Success:</strong><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><strong>❌ Profile Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function testUserData() {
+            const resultDiv = document.getElementById('user-result');
+            try {
+                const response = await fetch('http://localhost:5000/api/users/1', {
+                    method: 'GET'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success"><strong>✅ User Data Fetch Success:</strong><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><strong>❌ User Data Error:</strong> ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
